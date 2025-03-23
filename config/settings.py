@@ -32,9 +32,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://www.anticounterfeit.vn/',
     'https://www.anticounterfeit.vn/',
     'https://anticounterfeit.vn:8011/',
-    'http://anticounterfeit.vn:8011/',
+    'http://anticounterfeit.vn:8011',
     'http://127.0.0.1:8000',
     'http://0.0.0.0:8011',
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://anticounterfeit.vn:8011",
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS = True
@@ -55,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'family',
 ] 
 
@@ -72,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
