@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, date
 fake = Faker(['vi_VN'])
 
 class Command(BaseCommand):
-    help = 'Tạo dữ liệu giả cho family tree với 6 thế hệ, khoảng 100 người'
+    help = 'Tạo dữ liệu giả cho family tree với 10 thế hệ, khoảng 100 người'
 
     def generate_random_date(self, year):
         """Helper function để tạo ngày ngẫu nhiên trong năm"""
@@ -34,20 +34,28 @@ class Command(BaseCommand):
         else:
             name = fake.name_female()
         
-        # Tính năm sinh dựa vào thế hệ
+        # Điều chỉnh năm sinh theo 10 thế hệ
         current_year = datetime.now().year
         if generation == 1:
-            year_of_birth = random.randint(1950, 1960)
+            year_of_birth = random.randint(1920, 1930)    # Thế hệ 1: 1920-1930
         elif generation == 2:
-            year_of_birth = random.randint(1970, 1980)
+            year_of_birth = random.randint(1940, 1950)    # Thế hệ 2: 1940-1950
         elif generation == 3:
-            year_of_birth = random.randint(1985, 1995)
+            year_of_birth = random.randint(1955, 1965)    # Thế hệ 3: 1955-1965
         elif generation == 4:
-            year_of_birth = random.randint(2000, 2010)
+            year_of_birth = random.randint(1970, 1980)    # Thế hệ 4: 1970-1980
         elif generation == 5:
-            year_of_birth = random.randint(2010, 2015)
+            year_of_birth = random.randint(1985, 1995)    # Thế hệ 5: 1985-1995
+        elif generation == 6:
+            year_of_birth = random.randint(1995, 2000)    # Thế hệ 6: 1995-2000
+        elif generation == 7:
+            year_of_birth = random.randint(2000, 2005)    # Thế hệ 7: 2000-2005
+        elif generation == 8:
+            year_of_birth = random.randint(2005, 2010)    # Thế hệ 8: 2005-2010
+        elif generation == 9:
+            year_of_birth = random.randint(2010, 2015)    # Thế hệ 9: 2010-2015
         else:
-            year_of_birth = random.randint(2015, 2020)
+            year_of_birth = random.randint(2015, 2020)    # Thế hệ 10: 2015-2020
         
         # Tạo ngày sinh
         date_of_birth = self.generate_random_date(year_of_birth)
@@ -131,17 +139,19 @@ class Command(BaseCommand):
         
         # Điều chỉnh số con dựa vào thế hệ
         if generation == 1:
-            num_children = random.randint(4, 5)  # Thế hệ 1: 4-5 con
+            num_children = random.randint(2, 3)      # Thế hệ 1: 2-3 con
         elif generation == 2:
-            num_children = random.randint(3, 4)  # Thế hệ 2: 3-4 con
+            num_children = random.randint(2, 3)      # Thế hệ 2: 2-3 con
         elif generation == 3:
-            num_children = random.randint(3, 4)  # Thế hệ 3: 3-4 con
+            num_children = random.randint(2, 3)      # Thế hệ 3: 2-3 con
         elif generation == 4:
-            num_children = random.randint(2, 3)  # Thế hệ 4: 2-3 con
-        elif generation == 5:
-            num_children = random.randint(1, 2)  # Thế hệ 5: 1-2 con
+            num_children = random.randint(1, 2)      # Thế hệ 4: 1-2 con
+        elif generation in [5, 6]:
+            num_children = random.randint(1, 2)      # Thế hệ 5-6: 1-2 con
+        elif generation in [7, 8]:
+            num_children = 1                         # Thế hệ 7-8: 1 con
         else:
-            num_children = 1  # Thế hệ 6: 1 con
+            num_children = random.randint(0, 1)      # Thế hệ 9-10: 0-1 con
         
         children = []
         for _ in range(num_children):
@@ -182,33 +192,31 @@ class Command(BaseCommand):
         current_generation, parent_ids = self.create_family_unit(1)
         parent_map = {child.id: parent_ids for child in current_generation}
         
-        # Tạo các thế hệ tiếp theo (2-6)
-        for generation in range(2, 7):
+        # Tạo các thế hệ tiếp theo (2-10)
+        for generation in range(2, 11):  # Thay đổi range thành (2, 11)
             self.stdout.write(f'Đang tạo thế hệ {generation}...')
             next_generation = []
             next_parent_map = {}
             
             for person in current_generation:
                 # Điều chỉnh xác suất có con theo thế hệ
-                if generation == 2:
-                    chance = 0.95  # 95% cơ hội có con ở thế hệ 2
-                elif generation == 3:
-                    chance = 0.90  # 90% cơ hội có con ở thế hệ 3
-                elif generation == 4:
-                    chance = 0.85  # 85% cơ hội có con ở thế hệ 4
-                elif generation == 5:
-                    chance = 0.80  # 80% cơ hội có con ở thế hệ 5
+                if generation <= 3:
+                    chance = 0.95      # Thế hệ 1-3: 95%
+                elif generation <= 5:
+                    chance = 0.85      # Thế hệ 4-5: 85%
+                elif generation <= 7:
+                    chance = 0.75      # Thế hệ 6-7: 75%
+                elif generation <= 8:
+                    chance = 0.60      # Thế hệ 8: 60%
                 else:
-                    chance = 0.70  # 70% cơ hội có con ở thế hệ 6
+                    chance = 0.40      # Thế hệ 9-10: 40%
                 
                 if random.random() < chance:
-                    # Truyền thông tin cha mẹ khi tạo gia đình mới
                     children, new_parent_ids = self.create_family_unit(
                         generation, 
                         parent_map.get(person.id)
                     )
                     next_generation.extend(children)
-                    # Lưu thông tin cha mẹ cho thế hệ tiếp theo
                     for child in children:
                         next_parent_map[child.id] = new_parent_ids
             
@@ -226,7 +234,7 @@ class Command(BaseCommand):
         
         # Thống kê theo thế hệ
         generation_stats = {}
-        for gen in range(1, 7):
+        for gen in range(1, 11):
             count = Person.objects.filter(generation_level=gen).count()
             generation_stats[gen] = count
         
