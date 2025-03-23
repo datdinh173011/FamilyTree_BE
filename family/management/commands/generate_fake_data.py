@@ -79,9 +79,8 @@ class Command(BaseCommand):
             date_of_death = self.generate_random_date(year_of_death)
         
         # Xác định thứ bậc trong gia đình
-        family_rank_choices = ['Trưởng', 'Thứ', 'Út']
+        family_rank_choices = ['Con trưởng', 'Con thứ hai',  'Con thứ ba', 'Con thứ tư', 'Con thứ năm']
         family_rank = random.choice(family_rank_choices)
-        
         # Tạo địa chỉ
         permanent_address = f"{fake.street_address()}, {fake.city()}"
             
