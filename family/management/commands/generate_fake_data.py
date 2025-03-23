@@ -97,7 +97,7 @@ class Command(BaseCommand):
             permanent_address=permanent_address,
             description=fake.text(max_nb_chars=200),
             image_url=f"https://picsum.photos/id/{random.randint(1, 1000)}/200/200",
-            expanded=generation <= 2,
+            expanded=generation < 2,
         )
 
     def create_family_unit(self, generation, parent_ids=None):
