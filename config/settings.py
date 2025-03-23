@@ -31,8 +31,8 @@ ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     'http://www.anticounterfeit.vn/',
     'https://www.anticounterfeit.vn/',
-    'https://anticounterfeit.vn/',
-    'http://anticounterfeit.vn/',
+    'https://anticounterfeit.vn:8011/',
+    'http://anticounterfeit.vn:8011/',
     'http://127.0.0.1:8000',
     'http://0.0.0.0:8011',
 ]
