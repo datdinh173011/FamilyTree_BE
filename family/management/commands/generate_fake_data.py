@@ -141,13 +141,13 @@ class Command(BaseCommand):
         if generation == 1:
             num_children = random.randint(2, 3)      # Thế hệ 1: 2-3 con
         elif generation == 2:
-            num_children = random.randint(2, 3)      # Thế hệ 2: 2-3 con
+            num_children = random.randint(2, 6)      # Thế hệ 2: 2-3 con
         elif generation == 3:
-            num_children = random.randint(2, 3)      # Thế hệ 3: 2-3 con
+            num_children = random.randint(2, 4)      # Thế hệ 3: 2-3 con
         elif generation == 4:
             num_children = random.randint(1, 2)      # Thế hệ 4: 1-2 con
         elif generation in [5, 6]:
-            num_children = random.randint(1, 2)      # Thế hệ 5-6: 1-2 con
+            num_children = random.randint(1, 3)      # Thế hệ 5-6: 1-2 con
         elif generation in [7, 8]:
             num_children = 1                         # Thế hệ 7-8: 1 con
         else:
