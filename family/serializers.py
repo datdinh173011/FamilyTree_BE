@@ -63,18 +63,4 @@ class PersonSerializer(serializers.ModelSerializer):
 
     def get_siblings(self, obj):
         siblings = []
-        sibling_relations1 = obj.sibling_relations1.all()
-        sibling_relations2 = obj.sibling_relations2.all()
-
-        for relation in sibling_relations1:
-            siblings.append({
-                "id": relation.person2.id,
-                "type": relation.relationship_type
-            })
-        
-        for relation in sibling_relations2:
-            siblings.append({
-                "id": relation.person1.id,
-                "type": relation.relationship_type
-            })
         return siblings 
