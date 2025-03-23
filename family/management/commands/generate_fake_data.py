@@ -25,11 +25,30 @@ class Command(BaseCommand):
             generation_level=generation
         )
 
-    def create_family_unit(self, generation):
-        """Tạo một đơn vị gia đình (vợ chồng và con cái)"""
+    def create_family_unit(self, generation, parent_ids=None):
+        """
+        Tạo một đơn vị gia đình (vợ chồng và con cái)
+        parent_ids: tuple chứa (father_id, mother_id) nếu có
+        """
         # Tạo chồng và vợ
         husband = self.generate_person('male', generation)
         wife = self.generate_person('female', generation)
+        
+        # Nếu có thông tin về cha mẹ, tạo quan hệ parent-child
+        if parent_ids:
+            father_id, mother_id = parent_ids
+            if father_id:
+                ParentChild.objects.create(
+                    parent_id=father_id,
+                    child=husband,
+                    relationship_type='blood'
+                )
+            if mother_id:
+                ParentChild.objects.create(
+                    parent_id=mother_id,
+                    child=husband,
+                    relationship_type='blood'
+                )
         
         marriage = Marriage.objects.create(
             spouse1=husband,
@@ -50,13 +69,14 @@ class Command(BaseCommand):
             num_children = random.randint(1, 2)  # Thế hệ 3 có 1-2 con
         else:
             num_children = 1  # Thế hệ 4 có 1 con
-            
+        
         children = []
         for _ in range(num_children):
             gender = random.choice(['male', 'female'])
             child = self.generate_person(gender, generation + 1)
             children.append(child)
             
+            # Tạo quan hệ cha mẹ - con
             ParentChild.objects.create(
                 parent=husband,
                 child=child,
@@ -77,21 +97,23 @@ class Command(BaseCommand):
                     relationship_type='blood'
                 )
         
-        return children
+        return children, (husband.id, wife.id)
 
     def handle(self, *args, **kwargs):
         # Xóa dữ liệu cũ
         self.stdout.write('Đang xóa dữ liệu cũ...')
         Person.objects.all().delete()
         
-        # Tạo thế hệ đầu tiên (1 cặp vợ chồng)
+        # Tạo thế hệ đầu tiên
         self.stdout.write('Đang tạo thế hệ 1...')
-        current_generation = self.create_family_unit(1)
+        current_generation, parent_ids = self.create_family_unit(1)
+        parent_map = {child.id: parent_ids for child in current_generation}
         
         # Tạo các thế hệ tiếp theo (2-4)
         for generation in range(2, 5):
             self.stdout.write(f'Đang tạo thế hệ {generation}...')
             next_generation = []
+            next_parent_map = {}
             
             for person in current_generation:
                 # Điều chỉnh xác suất có con theo thế hệ
@@ -103,10 +125,21 @@ class Command(BaseCommand):
                     chance = 0.4  # 40% cơ hội có con ở thế hệ 4
                 
                 if random.random() < chance:
-                    children = self.create_family_unit(generation)
+                    # Truyền thông tin cha mẹ khi tạo gia đình mới
+                    children, new_parent_ids = self.create_family_unit(
+                        generation, 
+                        parent_map.get(person.id)
+                    )
                     next_generation.extend(children)
+                    # Lưu thông tin cha mẹ cho thế hệ tiếp theo
+                    for child in children:
+                        next_parent_map[child.id] = new_parent_ids
             
             current_generation = next_generation
+            parent_map = next_parent_map
+            
+            if not current_generation:
+                break
         
         # Thống kê kết quả
         total_persons = Person.objects.count()
