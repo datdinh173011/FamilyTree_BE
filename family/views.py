@@ -23,7 +23,6 @@ class PersonViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.query_params.get('search', None)
-        
         if search_query:
             # Tìm người theo tên
             searched_person = queryset.filter(name__icontains=search_query).first()
@@ -78,11 +77,6 @@ class PersonViewSet(viewsets.ModelViewSet):
                     expand_ids.add(sibling.person2_id)
                 for sibling in siblings2:
                     expand_ids.add(sibling.person1_id)
-
-                # Lấy con cái của người được tìm thấy
-                children = searched_person.children_relations.all()
-                for child_relation in children:
-                    expand_ids.add(child_relation.child_id)
 
                 # Set expanded=True cho tất cả ID đã thu thập
                 queryset = queryset.all()
