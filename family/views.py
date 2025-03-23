@@ -20,6 +20,33 @@ class PersonViewSet(viewsets.ModelViewSet):
     filterset_fields = ['gender', 'generation_level']
     search_fields = ['name']
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.query_params.get('search', None)
+        
+        if search_query:
+            # Tìm người theo tên
+            searched_person = queryset.filter(name__icontains=search_query).first()
+            if searched_person:
+                # Lấy tất cả cha mẹ của người này
+                parents = []
+                current = searched_person
+                while True:
+                    parent_relations = current.parent_relations.all()
+                    if not parent_relations:
+                        break
+                    parent = parent_relations[0].parent
+                    parents.append(parent.id)
+                    current = parent
+
+                # Chỉ trả về expanded=True trong response mà không cập nhật database
+                queryset = queryset.all()
+                for person in queryset:
+                    if person.id in parents or person.id == searched_person.id:
+                        person.expanded = True
+
+        return queryset
+
     @action(detail=False, methods=['get'])
     def family_tree(self, request):
         persons = self.get_queryset()
