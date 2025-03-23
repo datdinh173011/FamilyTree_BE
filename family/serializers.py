@@ -24,9 +24,11 @@ class PersonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Person
-        fields = ['id', 'name', 'gender', 'image', 'expanded', 
-                 'generation_level', 'spouses', 'children', 
-                 'parents', 'siblings']
+        fields = [
+            'id', 'name', 'gender', 'image_url', 'description',
+            'expanded', 'generation_level', 'spouses', 'children', 
+            'parents', 'siblings'
+        ]
         read_only_fields = ['id']
 
     def get_spouses(self, obj):
