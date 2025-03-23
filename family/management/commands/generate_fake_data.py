@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 fake = Faker(['vi_VN'])
 
 class Command(BaseCommand):
-    help = 'Tạo dữ liệu giả cho family tree với 10 thế hệ'
+    help = 'Tạo dữ liệu giả cho family tree với 6 thế hệ'
 
     def generate_person(self, gender, generation):
         """Tạo một người với giới tính và thế hệ xác định"""
@@ -21,7 +21,7 @@ class Command(BaseCommand):
             gender=gender,
             description=fake.text(max_nb_chars=200),
             image_url=f"https://picsum.photos/id/{random.randint(1, 1000)}/200/200",
-            expanded=False,
+            expanded=generation <= 2,
             generation_level=generation
         )
 
@@ -82,8 +82,8 @@ class Command(BaseCommand):
         self.stdout.write('Đang tạo thế hệ 1...')
         current_generation = self.create_family_unit(1)
         
-        # Tạo các thế hệ tiếp theo
-        for generation in range(2, 11):
+        # Tạo các thế hệ tiếp theo (từ 2 đến 6)
+        for generation in range(2, 7):  # Thay đổi range thành (2, 7)
             self.stdout.write(f'Đang tạo thế hệ {generation}...')
             next_generation = []
             
@@ -104,10 +104,19 @@ class Command(BaseCommand):
         total_parent_child = ParentChild.objects.count()
         total_siblings = Sibling.objects.count()
         
+        # Thêm thống kê theo thế hệ
+        generation_stats = {}
+        for gen in range(1, 7):
+            count = Person.objects.filter(generation_level=gen).count()
+            generation_stats[gen] = count
+        
         self.stdout.write(self.style.SUCCESS(f'''
         Đã tạo xong dữ liệu giả:
         - Tổng số người: {total_persons}
         - Tổng số cuộc hôn nhân: {total_marriages}
         - Tổng số quan hệ cha mẹ - con: {total_parent_child}
         - Tổng số quan hệ anh chị em: {total_siblings}
+        
+        Thống kê theo thế hệ:
+        {chr(10).join(f"- Thế hệ {gen}: {count} người" for gen, count in generation_stats.items())}
         ''')) 

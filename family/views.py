@@ -14,7 +14,7 @@ from .serializers import (
 
 class PersonViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
-    queryset = Person.objects.all()
+    queryset = Person.objects.all().order_by('generation_level')
     serializer_class = PersonSerializer
     filter_backends = [filters.DjangoFilterBackend]
     filterset_fields = ['gender', 'generation_level']
