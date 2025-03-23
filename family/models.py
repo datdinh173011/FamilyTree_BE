@@ -7,13 +7,35 @@ class Person(models.Model):
         ('other', 'Khác'),
     ]
 
+    FAMILY_RANK_CHOICES = [
+        ('1', 'Con trưởng'),
+        ('2', 'Con thứ hai'), 
+        ('3', 'Con thứ ba'),
+        ('4', 'Con thứ tư'),
+        ('5', 'Con thứ năm'),
+        ('other', 'Khác')
+    ]
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, verbose_name="Họ tên")
     gender = models.CharField(
-        max_length=10, 
+        max_length=10,
         choices=GENDER_CHOICES,
         verbose_name="Giới tính"
     )
+    date_of_birth = models.DateField(blank=True, null=True, verbose_name="Ngày sinh")
+    year_of_birth = models.IntegerField(blank=True, null=True, verbose_name="Năm sinh")
+    date_of_death = models.DateField(blank=True, null=True, verbose_name="Ngày mất")
+    year_of_death = models.IntegerField(blank=True, null=True, verbose_name="Năm mất")
+    family_rank = models.CharField(
+        max_length=10,
+        choices=FAMILY_RANK_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="Thứ bậc trong gia đình"
+    )
+    generation_level = models.IntegerField(default=1, verbose_name="Thế hệ thứ")
+    permanent_address = models.TextField(blank=True, null=True, verbose_name="Địa chỉ thường trú")
     description = models.TextField(blank=True, null=True, verbose_name="Mô tả")
     image_url = models.CharField(max_length=255, blank=True, null=True, verbose_name="URL ảnh")
     image = models.URLField(blank=True, null=True, verbose_name="Ảnh")

@@ -27,6 +27,7 @@ class PersonSerializer(serializers.ModelSerializer):
         model = Person
         fields = [
             'id', 'name', 'gender', 'image_url', 'description',
+            'date_of_birth', 'date_of_death', 'family_rank', 'permanent_address',
             'expanded', 'generation_level', 'spouses', 'children', 
             'parents', 'siblings', 'generationLevel'
         ]
