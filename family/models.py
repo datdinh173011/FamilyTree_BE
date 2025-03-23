@@ -7,7 +7,7 @@ class Person(models.Model):
         ('other', 'Khác'),
     ]
 
-    id = models.CharField(max_length=50, primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, verbose_name="Họ tên")
     gender = models.CharField(
         max_length=10, 

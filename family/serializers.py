@@ -27,6 +27,7 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'gender', 'image', 'expanded', 
                  'generation_level', 'spouses', 'children', 
                  'parents', 'siblings']
+        read_only_fields = ['id']
 
     def get_spouses(self, obj):
         spouses = []
