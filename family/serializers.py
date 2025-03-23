@@ -21,13 +21,14 @@ class PersonSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     parents = serializers.SerializerMethodField()
     siblings = serializers.SerializerMethodField()
+    generationLevel = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
         fields = [
             'id', 'name', 'gender', 'image_url', 'description',
             'expanded', 'generation_level', 'spouses', 'children', 
-            'parents', 'siblings'
+            'parents', 'siblings', 'generationLevel'
         ]
         read_only_fields = ['id']
 
@@ -64,3 +65,6 @@ class PersonSerializer(serializers.ModelSerializer):
     def get_siblings(self, obj):
         siblings = []
         return siblings 
+    
+    def get_generationLevel(self, obj):
+        return obj.generation_level
