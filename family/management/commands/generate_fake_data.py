@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 fake = Faker(['vi_VN'])
 
 class Command(BaseCommand):
-    help = 'Tạo dữ liệu giả cho family tree với 6 thế hệ'
+    help = 'Tạo dữ liệu giả cho family tree với 4 thế hệ, khoảng 30 người'
 
     def generate_person(self, gender, generation):
         """Tạo một người với giới tính và thế hệ xác định"""
@@ -21,7 +21,7 @@ class Command(BaseCommand):
             gender=gender,
             description=fake.text(max_nb_chars=200),
             image_url=f"https://picsum.photos/id/{random.randint(1, 1000)}/200/200",
-            expanded=generation <= 2,
+            expanded=generation <= 2,  # 2 thế hệ đầu sẽ được mở rộng
             generation_level=generation
         )
 
@@ -31,7 +31,6 @@ class Command(BaseCommand):
         husband = self.generate_person('male', generation)
         wife = self.generate_person('female', generation)
         
-        # Tạo hôn nhân
         marriage = Marriage.objects.create(
             spouse1=husband,
             spouse2=wife,
@@ -42,15 +41,22 @@ class Command(BaseCommand):
             )
         )
         
-        # Tạo con cái (2-5 người con)
+        # Điều chỉnh số con dựa vào thế hệ
+        if generation == 1:
+            num_children = 3  # Thế hệ 1 có 3 con
+        elif generation == 2:
+            num_children = 2  # Thế hệ 2 có 2 con
+        elif generation == 3:
+            num_children = random.randint(1, 2)  # Thế hệ 3 có 1-2 con
+        else:
+            num_children = 1  # Thế hệ 4 có 1 con
+            
         children = []
-        num_children = random.randint(2, 5)
         for _ in range(num_children):
             gender = random.choice(['male', 'female'])
             child = self.generate_person(gender, generation + 1)
             children.append(child)
             
-            # Tạo quan hệ cha mẹ - con
             ParentChild.objects.create(
                 parent=husband,
                 child=child,
@@ -62,7 +68,7 @@ class Command(BaseCommand):
                 relationship_type='blood'
             )
         
-        # Tạo quan hệ anh chị em giữa các con
+        # Tạo quan hệ anh chị em
         for i in range(len(children)):
             for j in range(i + 1, len(children)):
                 Sibling.objects.create(
@@ -78,25 +84,29 @@ class Command(BaseCommand):
         self.stdout.write('Đang xóa dữ liệu cũ...')
         Person.objects.all().delete()
         
-        # Tạo thế hệ đầu tiên
+        # Tạo thế hệ đầu tiên (1 cặp vợ chồng)
         self.stdout.write('Đang tạo thế hệ 1...')
         current_generation = self.create_family_unit(1)
         
-        # Tạo các thế hệ tiếp theo (từ 2 đến 6)
-        for generation in range(2, 7):  # Thay đổi range thành (2, 7)
+        # Tạo các thế hệ tiếp theo (2-4)
+        for generation in range(2, 5):
             self.stdout.write(f'Đang tạo thế hệ {generation}...')
             next_generation = []
             
-            # Với mỗi người trong thế hệ hiện tại
             for person in current_generation:
-                # 70% khả năng người này sẽ lập gia đình và có con
-                if random.random() < 0.7:
+                # Điều chỉnh xác suất có con theo thế hệ
+                if generation == 2:
+                    chance = 0.8  # 80% cơ hội có con ở thế hệ 2
+                elif generation == 3:
+                    chance = 0.6  # 60% cơ hội có con ở thế hệ 3
+                else:
+                    chance = 0.4  # 40% cơ hội có con ở thế hệ 4
+                
+                if random.random() < chance:
                     children = self.create_family_unit(generation)
                     next_generation.extend(children)
             
             current_generation = next_generation
-            if not current_generation:
-                break
         
         # Thống kê kết quả
         total_persons = Person.objects.count()
@@ -104,9 +114,9 @@ class Command(BaseCommand):
         total_parent_child = ParentChild.objects.count()
         total_siblings = Sibling.objects.count()
         
-        # Thêm thống kê theo thế hệ
+        # Thống kê theo thế hệ
         generation_stats = {}
-        for gen in range(1, 7):
+        for gen in range(1, 5):
             count = Person.objects.filter(generation_level=gen).count()
             generation_stats[gen] = count
         
