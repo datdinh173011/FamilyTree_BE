@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,23 @@ SECRET_KEY = 'django-insecure-7$f82shg3s1^nn4r(-rszhub9l0g39k5=#g-4*-4$4f8by5@7f
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    'http://www.anticounterfeit.vn/',
+    'https://www.anticounterfeit.vn/',
+    'https://anticounterfeit.vn/',
+    'http://anticounterfeit.vn/',
+    'http://127.0.0.1:8000',
+    'http://0.0.0.0:8011',
+]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "X-CSRFToken",
+    "Access-Control-Allow-Origin",
+)
 
 # Application definition
 
