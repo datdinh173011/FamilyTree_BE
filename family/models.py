@@ -24,9 +24,7 @@ class Person(models.Model):
         verbose_name="Giới tính"
     )
     date_of_birth = models.DateField(blank=True, null=True, verbose_name="Ngày sinh")
-    year_of_birth = models.IntegerField(blank=True, null=True, verbose_name="Năm sinh")
     date_of_death = models.DateField(blank=True, null=True, verbose_name="Ngày mất")
-    year_of_death = models.IntegerField(blank=True, null=True, verbose_name="Năm mất")
     family_rank = models.CharField(
         max_length=10,
         choices=FAMILY_RANK_CHOICES,
