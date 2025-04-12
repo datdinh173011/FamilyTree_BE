@@ -15,7 +15,7 @@ from .serializers import (
 class NewsCategoryViewSet(viewsets.ModelViewSet):
     queryset = NewsCategory.objects.all()
     serializer_class = NewsCategorySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
