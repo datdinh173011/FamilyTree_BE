@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from .models import NewsCategory, NewsArticle, NewsComment
-from account.serializers.user_serializers import UserSerializer
+from account.serializers import UserSerializer
 
 class NewsCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsCategory
         fields = '__all__'
+
 
 class NewsCommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -14,6 +15,7 @@ class NewsCommentSerializer(serializers.ModelSerializer):
         model = NewsComment
         fields = ['id', 'article', 'user', 'content', 'created_at', 'updated_at']
         read_only_fields = ['user']
+
 
 class NewsArticleSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
@@ -28,6 +30,7 @@ class NewsArticleSerializer(serializers.ModelSerializer):
     
     def get_comments_count(self, obj):
         return obj.comments.count()
+
 
 class NewsArticleDetailSerializer(NewsArticleSerializer):
     comments = NewsCommentSerializer(many=True, read_only=True)

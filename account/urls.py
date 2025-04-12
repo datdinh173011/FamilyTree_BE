@@ -24,4 +24,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='api_logout'),
     # User profile
     path('me/', UserViewSet.as_view({'get': 'me'}), name='user_me'),
+    # Password management
+    path('password/reset/', UserViewSet.as_view({'post': 'request_password_reset'}), name='password_reset_request'),
+    path('password/reset/confirm/', UserViewSet.as_view({'post': 'reset_password_confirm'}), name='password_reset_confirm'),
+    path('password/change/', UserViewSet.as_view({'post': 'change_password'}), name='password_change'),
 ]
