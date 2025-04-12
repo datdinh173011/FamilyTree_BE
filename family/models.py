@@ -38,7 +38,6 @@ class Person(models.Model):
     image_url = models.CharField(max_length=255, blank=True, null=True, verbose_name="URL ảnh")
     image = models.URLField(blank=True, null=True, verbose_name="Ảnh")
     expanded = models.BooleanField(default=False)
-    generation_level = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
