@@ -15,7 +15,8 @@ class NewsCategory(models.Model):
 
 class NewsArticle(models.Model):
     title = models.CharField(max_length=200)
-    content = models.TextField()
+    desciption = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
     category = models.ForeignKey(NewsCategory, on_delete=models.SET_NULL, null=True, related_name='articles')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='news_articles')
     image = models.ImageField(upload_to='news_images/', blank=True, null=True)
