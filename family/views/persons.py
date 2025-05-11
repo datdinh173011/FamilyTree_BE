@@ -99,9 +99,40 @@ class PersonViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             parent_id = request.data.get('parent_id')
             spouse_id = request.data.get('spouse_id')
+            # Handle date formatting
+            if 'date_of_birth' in request.data and request.data['date_of_birth']:
+                try:
+                    # Ensure date is in YYYY-MM-DD format
+                    from datetime import datetime
+                    date_str = request.data['date_of_birth']
+                    # Try to parse and reformat the date if needed
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    request.data['date_of_birth'] = date_obj.strftime(
+                        '%Y-%m-%d')
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid date format for date_of_birth. Use YYYY-MM-DD format."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            # Similar handling for date_of_death if needed
+            if 'date_of_death' in request.data and request.data['date_of_death']:
+                try:
+                    from datetime import datetime
+                    date_str = request.data['date_of_death']
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    request.data['date_of_death'] = date_obj.strftime(
+                        '%Y-%m-%d')
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid date format for date_of_death. Use YYYY-MM-DD format."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             new_person = serializer.save()
+
             if parent_id:
                 # Create parent-child relationships
                 try:
@@ -119,7 +150,7 @@ class PersonViewSet(viewsets.ModelViewSet):
                                 person1=new_person, person2=sibling.person2)
 
                 except Person.DoesNotExist:
-                    raise Response(
+                    return Response(
                         {"error": "Parent not found"},
                         status=status.HTTP_400_BAD_REQUEST
                     )
@@ -130,7 +161,7 @@ class PersonViewSet(viewsets.ModelViewSet):
                     Marriage.objects.create(
                         spouse1=new_person, spouse2=spouse)
                 except Person.DoesNotExist:
-                    raise Response(
+                    return Response(
                         {"error": "Spouse not found"},
                         status=status.HTTP_400_BAD_REQUEST
                     )
