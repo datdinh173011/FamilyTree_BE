@@ -6,7 +6,7 @@ from datetime import date
 
 class User(AbstractUser):
     """
-    Custom User model inheriting from Django's AbstractUser 
+    Custom User model inheriting from Django's AbstractUser
     to add additional fields and functionality
     """
     GENDER_CHOICES = (
@@ -20,8 +20,9 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     bio = models.TextField(blank=True)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
-    
+    gender = models.CharField(
+        max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
+
     # Address fields
     address = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=100, blank=True)
@@ -32,19 +33,19 @@ class User(AbstractUser):
     # Family tree specific fields
     family_role = models.CharField(max_length=50, blank=True)
     family_branch = models.CharField(max_length=100, blank=True)
-    
+
     # Social media links
     facebook = models.URLField(blank=True)
     twitter = models.URLField(blank=True)
     instagram = models.URLField(blank=True)
     linkedin = models.URLField(blank=True)
-    
+
     # System fields
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_activity = models.DateTimeField(null=True, blank=True)
-    
+
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
@@ -52,14 +53,14 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username or self.email
-    
+
     def get_full_name(self):
         """
         Return the full name of the user (first name + last name)
         """
         full_name = super().get_full_name()
         return full_name if full_name else self.username
-    
+
     def age(self):
         """
         Calculate and return user's age based on date of birth
@@ -67,6 +68,8 @@ class User(AbstractUser):
         if self.date_of_birth:
             today = date.today()
             return today.year - self.date_of_birth.year - (
-                (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+                (today.month, today.day) < (
+                    self.date_of_birth.month, self.date_of_birth.day
+                )
             )
         return None

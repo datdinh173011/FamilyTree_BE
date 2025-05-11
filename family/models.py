@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Person(models.Model):
     GENDER_CHOICES = [
         ('male', 'Nam'),
@@ -9,7 +10,7 @@ class Person(models.Model):
 
     FAMILY_RANK_CHOICES = [
         ('1', 'Con trưởng'),
-        ('2', 'Con thứ hai'), 
+        ('2', 'Con thứ hai'),
         ('3', 'Con thứ ba'),
         ('4', 'Con thứ tư'),
         ('5', 'Con thứ năm'),
@@ -23,8 +24,10 @@ class Person(models.Model):
         choices=GENDER_CHOICES,
         verbose_name="Giới tính"
     )
-    date_of_birth = models.DateField(blank=True, null=True, verbose_name="Ngày sinh")
-    date_of_death = models.DateField(blank=True, null=True, verbose_name="Ngày mất")
+    date_of_birth = models.DateField(
+        blank=True, null=True, verbose_name="Ngày sinh")
+    date_of_death = models.DateField(
+        blank=True, null=True, verbose_name="Ngày mất")
     family_rank = models.CharField(
         max_length=10,
         choices=FAMILY_RANK_CHOICES,
@@ -32,10 +35,13 @@ class Person(models.Model):
         null=True,
         verbose_name="Thứ bậc trong gia đình"
     )
-    generation_level = models.IntegerField(default=1, verbose_name="Thế hệ thứ")
-    permanent_address = models.TextField(blank=True, null=True, verbose_name="Địa chỉ thường trú")
+    generation_level = models.IntegerField(
+        default=1, verbose_name="Thế hệ thứ")
+    permanent_address = models.TextField(
+        blank=True, null=True, verbose_name="Địa chỉ thường trú")
     description = models.TextField(blank=True, null=True, verbose_name="Mô tả")
-    image_url = models.CharField(max_length=255, blank=True, null=True, verbose_name="URL ảnh")
+    image_url = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="URL ảnh")
     image = models.URLField(blank=True, null=True, verbose_name="Ảnh")
     expanded = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,7 +59,7 @@ class Person(models.Model):
                 "id": marriage.spouse2.id,
                 "type": marriage.marriage_type
             })
-        
+
         # Lấy các cuộc hôn nhân với vai trò là spouse2
         marriages2 = self.marriages_as_spouse2.all()
         for marriage in marriages2:
@@ -84,7 +90,7 @@ class Marriage(models.Model):
     ]
 
     spouse1 = models.ForeignKey(
-        Person, 
+        Person,
         on_delete=models.CASCADE,
         related_name='marriages_as_spouse1'
     )
@@ -169,4 +175,4 @@ class Sibling(models.Model):
 
     class Meta:
         verbose_name = "Quan hệ anh chị em"
-        verbose_name_plural = "Quan hệ anh chị em" 
+        verbose_name_plural = "Quan hệ anh chị em"
