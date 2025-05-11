@@ -178,10 +178,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'  # Make sure it starts with a slash
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [
-    # Add a directory for additional static files
-    os.path.join(BASE_DIR, "static"),
-]
+
+# Create a list of static file directories that exist
+STATICFILES_DIRS = []
+static_dir = os.path.join(BASE_DIR, "static")
+if os.path.exists(static_dir):
+    STATICFILES_DIRS.append(static_dir)
+
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",  # Add FileSystemFinder
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
