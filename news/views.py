@@ -6,11 +6,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import NewsCategory, NewsArticle, NewsComment
 from .serializers import (
-    NewsCategorySerializer, 
-    NewsArticleSerializer, 
+    NewsCategorySerializer,
+    NewsArticleSerializer,
     NewsArticleDetailSerializer,
     NewsCommentSerializer
 )
+
 
 class NewsCategoryViewSet(viewsets.ModelViewSet):
     queryset = NewsCategory.objects.all()
@@ -32,17 +33,17 @@ class NewsArticleViewSet(viewsets.ModelViewSet):
         if self.action == 'retrieve':
             return NewsArticleDetailSerializer
         return super().get_serializer_class()
-    
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-    
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.view_count += 1
         instance.save()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=['post'])
     def publish(self, request, pk=None):
         article = self.get_object()
@@ -51,7 +52,7 @@ class NewsArticleViewSet(viewsets.ModelViewSet):
         article.save()
         serializer = self.get_serializer(article)
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=['post'])
     def unpublish(self, request, pk=None):
         article = self.get_object()
@@ -67,6 +68,6 @@ class NewsCommentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['article', 'user']
-    
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
