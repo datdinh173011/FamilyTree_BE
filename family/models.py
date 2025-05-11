@@ -40,9 +40,8 @@ class Person(models.Model):
     permanent_address = models.TextField(
         blank=True, null=True, verbose_name="Địa chỉ thường trú")
     description = models.TextField(blank=True, null=True, verbose_name="Mô tả")
-    image_url = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="URL ảnh")
-    image = models.URLField(blank=True, null=True, verbose_name="Ảnh")
+    image = models.ImageField(
+        upload_to='person_images/', blank=True, null=True, verbose_name="Ảnh")
     expanded = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

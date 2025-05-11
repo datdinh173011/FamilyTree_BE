@@ -12,10 +12,10 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = [
-            'id', 'name', 'gender', 'image_url', 'description',
-            'date_of_birth', 'date_of_death', 'family_rank', 'permanent_address',
-            'expanded', 'generation_level', 'spouses', 'children',
-            'parents', 'siblings', 'generationLevel'
+            'id', 'name', 'gender', 'description', 'image',
+            'date_of_birth', 'date_of_death', 'family_rank',
+            'permanent_address', 'expanded', 'generation_level',
+            'spouses', 'children', 'parents', 'siblings', 'generationLevel'
         ]
         read_only_fields = ['id']
 

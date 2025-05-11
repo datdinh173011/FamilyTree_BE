@@ -4,7 +4,8 @@ from .models import Person, Marriage, ParentChild, Sibling
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'gender', 'generation_level', 'expanded', 'description', 'image_url')
+    list_display = ('id', 'name', 'gender', 'generation_level',
+                    'expanded', 'description', 'image')
     search_fields = ('name', 'id')
     list_filter = ('gender', 'generation_level')
 
@@ -24,4 +25,4 @@ class ParentChildAdmin(admin.ModelAdmin):
 @admin.register(Sibling)
 class SiblingAdmin(admin.ModelAdmin):
     list_display = ('person1', 'person2', 'relationship_type')
-    list_filter = ('relationship_type',) 
+    list_filter = ('relationship_type',)

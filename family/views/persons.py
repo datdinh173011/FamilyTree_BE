@@ -6,12 +6,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from family.serializers import (
-    PersonSerializer,
-    MarriageSerializer,
-    ParentChildSerializer,
-    SiblingSerializer
+    PersonSerializer
 )
-
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
@@ -99,93 +95,45 @@ class PersonViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(persons, many=True)
         return Response({"products": serializer.data})
 
-    @action(detail=False, methods=['post'])
-    @transaction.atomic
-    def add_family_member(self, request):
-        """Add a new family member with relationships"""
-        # Extract data from request
-        data = request.data
-
-        # Validate required fields
-        required_fields = ['name', 'gender', 'generation_level']
-        for field in required_fields:
-            if field not in data or not data[field]:
-                return Response(
-                    {"error": f"Field '{field}' is required"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        # Create new person
-        person_data = {
-            'name': data.get('name'),
-            'gender': data.get('gender'),
-            'generation_level': data.get('generation_level'),
-            'date_of_birth': data.get('birth_year'),
-            'date_of_death': data.get('death_year'),
-            'family_rank': data.get('role', ''),
-            'permanent_address': data.get('address', ''),
-            'description': data.get('biography', '')
-        }
-
-        # Handle photo if provided
-        if 'photo' in request.FILES:
-            person_data['image'] = request.FILES['photo']
-
-        serializer = self.get_serializer(data=person_data)
-        serializer.is_valid(raise_exception=True)
-        new_person = serializer.save()
-
-        # Create parent-child relationships
-        if 'parent_id' in data and data['parent_id']:
-            try:
-                parent_id = int(data['parent_id'])
-                parent = Person.objects.get(id=parent_id)
-                ParentChild.objects.create(parent=parent, child=new_person)
-            except (ValueError, Person.DoesNotExist):
-                pass  # Ignore invalid parent IDs
-
-        # Create marriage relationship
-        if 'spouse_id' in data and data['spouse_id']:
-            try:
-                spouse_id = int(data['spouse_id'])
-                spouse = Person.objects.get(id=spouse_id)
-                # Determine which person should be spouse1 based on gender convention
-                if new_person.gender == 'M':
-                    spouse1, spouse2 = new_person, spouse
-                else:
-                    spouse1, spouse2 = spouse, new_person
-                Marriage.objects.create(spouse1=spouse1, spouse2=spouse2)
-            except (ValueError, Person.DoesNotExist):
-                pass  # Ignore invalid spouse IDs
-
-        # Create sibling relationships
-        if 'sibling_ids' in data and data['sibling_ids']:
-            sibling_ids = data.getlist('sibling_ids') if hasattr(
-                data, 'getlist') else data['sibling_ids'].split(',')
-            for sibling_id in sibling_ids:
+    def create(self, request, *args, **kwargs):
+        with transaction.atomic():
+            parent_id = request.data.get('parent_id')
+            spouse_id = request.data.get('spouse_id')
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            new_person = serializer.save()
+            if parent_id:
+                # Create parent-child relationships
                 try:
-                    sibling_id = int(sibling_id)
-                    sibling = Person.objects.get(id=sibling_id)
-                    # Ensure consistent ordering (lower ID is always person1)
-                    if new_person.id < sibling.id:
-                        Sibling.objects.create(
-                            person1=new_person, person2=sibling)
-                    else:
-                        Sibling.objects.create(
-                            person1=sibling, person2=new_person)
-                except (ValueError, Person.DoesNotExist):
-                    pass  # Ignore invalid sibling IDs
+                    parent = Person.objects.get(id=parent_id)
+                    ParentChild.objects.create(parent=parent, child=new_person)
+                    # Create sibling relationships
+                    siblings = list(parent.sibling_relations1.all()) + \
+                        list(parent.sibling_relations2.all())
+                    for sibling in siblings:
+                        if sibling.person1_id != parent.id:
+                            Sibling.objects.create(
+                                person1=new_person, person2=sibling.person1)
+                        if sibling.person2_id != parent.id:
+                            Sibling.objects.create(
+                                person1=new_person, person2=sibling.person2)
 
-        # Create child relationships
-        if 'child_ids' in data and data['child_ids']:
-            child_ids = data.getlist('child_ids') if hasattr(
-                data, 'getlist') else data['child_ids'].split(',')
-            for child_id in child_ids:
+                except Person.DoesNotExist:
+                    raise Response(
+                        {"error": "Parent not found"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            elif spouse_id:
+                # Create marriage relationship
                 try:
-                    child_id = int(child_id)
-                    child = Person.objects.get(id=child_id)
-                    ParentChild.objects.create(parent=new_person, child=child)
-                except (ValueError, Person.DoesNotExist):
-                    pass  # Ignore invalid child IDs
+                    spouse = Person.objects.get(id=spouse_id)
+                    Marriage.objects.create(
+                        spouse1=new_person, spouse2=spouse)
+                except Person.DoesNotExist:
+                    raise Response(
+                        {"error": "Spouse not found"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
