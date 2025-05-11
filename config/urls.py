@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/news/', include('news.urls')),
     path('api/account/', include('account.urls')),
     path('api/filemanager/', include('filemanager.urls')),
+    path('api/homepage/', include('homepage.urls')),
 ]
 
 # Always serve static files, even in production for this setup

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'news',
     'account',
     'filemanager',
+    'homepage',
 ]
 
 AUTH_USER_MODEL = "account.User"
