@@ -1,5 +1,6 @@
 from rest_framework.permissions import AllowAny
 from django.db import transaction
+from datetime import datetime
 from django_filters import rest_framework as filters
 from family.models import Person, Marriage, ParentChild, Sibling
 from rest_framework import viewsets, status
@@ -99,39 +100,24 @@ class PersonViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             parent_id = request.data.get('parent_id')
             spouse_id = request.data.get('spouse_id')
-            # Handle date formatting
-            if 'date_of_birth' in request.data and request.data['date_of_birth']:
-                try:
-                    # Ensure date is in YYYY-MM-DD format
-                    from datetime import datetime
-                    date_str = request.data['date_of_birth']
-                    # Try to parse and reformat the date if needed
-                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-                    request.data['date_of_birth'] = date_obj.strftime(
-                        '%Y-%m-%d')
-                except ValueError:
-                    return Response(
-                        {"error": "Invalid date format for date_of_birth. Use YYYY-MM-DD format."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
-            # Similar handling for date_of_death if needed
-            if 'date_of_death' in request.data and request.data['date_of_death']:
-                try:
-                    from datetime import datetime
-                    date_str = request.data['date_of_death']
-                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-                    request.data['date_of_death'] = date_obj.strftime(
-                        '%Y-%m-%d')
-                except ValueError:
-                    return Response(
-                        {"error": "Invalid date format for date_of_death. Use YYYY-MM-DD format."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            date_of_birth = None
+            date_of_death = None
+            date_str = request.data.get('date_of_birth')
+            if date_str:
+                date_of_birth = datetime.strptime(date_str, '%Y-%m-%d').date()
+            date_str = request.data.get('date_of_death')
+            if date_str:
+                date_of_death = datetime.strptime(date_str, '%Y-%m-%d').date()
 
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             new_person = serializer.save()
+            # Now set the date fields after the object is created
+            if date_of_birth:
+                new_person.date_of_birth = date_of_birth
+            if date_of_death:
+                new_person.date_of_death = date_of_death
+            new_person.save()
 
             if parent_id:
                 # Create parent-child relationships
