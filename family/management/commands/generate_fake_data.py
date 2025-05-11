@@ -77,8 +77,9 @@ class Command(BaseCommand):
         if is_deceased:
             min_age = 50 if generation <= 2 else 40
             max_age = 80 if generation <= 2 else 70
-            year_of_death = min(current_year, year_of_birth +
-                                random.randint(min_age, max_age))
+            year_of_death = min(
+                current_year, year_of_birth + random.randint(min_age, max_age)
+            )
             date_of_death = self.generate_random_date(year_of_death)
 
         # Xác định thứ bậc trong gia đình
@@ -247,7 +248,7 @@ class Command(BaseCommand):
         - Tổng số cuộc hôn nhân: {total_marriages}
         - Tổng số quan hệ cha mẹ - con: {total_parent_child}
         - Tổng số quan hệ anh chị em: {total_siblings}
-        
+
         Thống kê theo thế hệ:
         {chr(10).join(f"- Thế hệ {gen}: {count} người" for gen, count in generation_stats.items())}
         '''))
