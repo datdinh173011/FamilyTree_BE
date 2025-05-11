@@ -2,8 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Homepage
-from .serializers import HomepageSerializer
+from homepage.models import Homepage
+from homepage.serializers import HomepageSerializer
 
 
 class HomepageViewSet(viewsets.ModelViewSet):
