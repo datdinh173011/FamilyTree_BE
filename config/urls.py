@@ -11,4 +11,6 @@ urlpatterns = [
     path('api/filemanager/', include('filemanager.urls')),
 ]
 
+# Always serve static files, even in production for this setup
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

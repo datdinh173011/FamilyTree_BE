@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'news',
     'account',
     'filemanager',
-] 
+]
 
 AUTH_USER_MODEL = "account.User"
 
@@ -176,26 +176,23 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'  # Make sure it starts with a slash
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = []
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+STATICFILES_DIRS = [
+    # Add a directory for additional static files
+    os.path.join(BASE_DIR, "static"),
+]
 STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",  # Add FileSystemFinder
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
 # Media files configuration
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'  # Keep only one MEDIA_URL definition
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Maximum upload file size: 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
 MAX_IMAGE_SIZE = 5120000
 
 FILE_UPLOAD_HANDLERS = [
@@ -214,5 +211,6 @@ EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with your email password or app password
+# Replace with your email password or app password
+EMAIL_HOST_PASSWORD = 'your-app-password'
 DEFAULT_FROM_EMAIL = 'Family Tree <your-email@gmail.com>'
