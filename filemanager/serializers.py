@@ -4,25 +4,27 @@ from account.serializers import UserSerializer
 import magic
 import os
 
+
 class UploadedFileSerializer(serializers.ModelSerializer):
     uploaded_by = UserSerializer(read_only=True)
     file_url = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
     mime_type = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = UploadedFile
-        fields = ['id', 'file', 'file_url', 'file_type', 'title', 'description', 
-                 'uploaded_by', 'created_at', 'updated_at', 'filename', 
-                 'file_extension', 'file_size', 'mime_type']
-        read_only_fields = ['uploaded_by', 'file_url', 'file_size', 'mime_type']
-    
+        fields = ['id', 'file', 'file_url', 'file_type', 'title', 'description',
+                  'uploaded_by', 'created_at', 'updated_at', 'filename',
+                  'file_extension', 'file_size', 'mime_type']
+        read_only_fields = ['uploaded_by',
+                            'file_url', 'file_size', 'mime_type']
+
     def get_file_url(self, obj):
         request = self.context.get('request')
         if obj.file and hasattr(obj.file, 'url') and request is not None:
             return request.build_absolute_uri(obj.file.url)
         return None
-    
+
     def get_file_size(self, obj):
         if obj.file and hasattr(obj.file, 'size'):
             size = obj.file.size
@@ -32,7 +34,7 @@ class UploadedFileSerializer(serializers.ModelSerializer):
                     return f"{size:.2f} {unit}"
                 size /= 1024
         return "0 B"
-    
+
     def get_mime_type(self, obj):
         if obj.file and hasattr(obj.file, 'path') and os.path.exists(obj.file.path):
             try:
@@ -41,11 +43,11 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             except Exception:
                 pass
         return None
-    
+
     def create(self, validated_data):
         """Set the uploaded_by field to the current user"""
         validated_data['uploaded_by'] = self.context['request'].user
-        
+
         # Automatically determine file type based on extension
         file = validated_data.get('file')
         if file:
@@ -62,5 +64,5 @@ class UploadedFileSerializer(serializers.ModelSerializer):
                 validated_data['file_type'] = 'audio'
             else:
                 validated_data['file_type'] = 'other'
-        
+
         return super().create(validated_data)

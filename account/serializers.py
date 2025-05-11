@@ -9,8 +9,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 
-                 'avatar', 'is_staff', 'is_active', 'date_joined']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+                  'avatar', 'is_staff', 'is_active', 'date_joined']
         read_only_fields = ['is_staff', 'is_active', 'date_joined']
 
     def create(self, validated_data):
@@ -28,16 +28,17 @@ class UserDetailSerializer(serializers.ModelSerializer):
     Detailed serializer for User model with all fields
     """
     age = serializers.ReadOnlyField()
-    
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 
-                 'avatar', 'phone_number', 'date_of_birth', 'gender', 'bio',
-                 'address', 'city', 'state', 'country', 'postal_code',
-                 'family_role', 'family_branch', 'facebook', 'twitter',
-                 'instagram', 'linkedin', 'is_verified', 'is_staff', 
-                 'is_active', 'date_joined', 'last_activity', 'age']
-        read_only_fields = ['is_staff', 'is_active', 'date_joined', 'last_activity']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+                  'avatar', 'phone_number', 'date_of_birth', 'gender', 'bio',
+                  'address', 'city', 'state', 'country', 'postal_code',
+                  'family_role', 'family_branch', 'facebook', 'twitter',
+                  'instagram', 'linkedin', 'is_verified', 'is_staff',
+                  'is_active', 'date_joined', 'last_activity', 'age']
+        read_only_fields = ['is_staff', 'is_active',
+                            'date_joined', 'last_activity']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -64,8 +65,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         Validate that passwords match and meet requirements
         """
         if data['new_password'] != data['confirm_password']:
-            raise serializers.ValidationError({"confirm_password": "Passwords don't match"})
-        
+            raise serializers.ValidationError(
+                {"confirm_password": "Passwords don't match"})
+
         validate_password(data['new_password'])
         return data
 
@@ -83,7 +85,8 @@ class ChangePasswordSerializer(serializers.Serializer):
         Validate that passwords match and meet requirements
         """
         if data['new_password'] != data['confirm_password']:
-            raise serializers.ValidationError({"confirm_password": "Passwords don't match"})
-        
+            raise serializers.ValidationError(
+                {"confirm_password": "Passwords don't match"})
+
         validate_password(data['new_password'])
         return data
