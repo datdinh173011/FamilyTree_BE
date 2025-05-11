@@ -1,20 +1,6 @@
 from rest_framework import serializers
-from .models import Person, Marriage, ParentChild, Sibling
+from family.models import Person
 
-class MarriageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Marriage
-        fields = ['id', 'spouse1', 'spouse2', 'marriage_type', 'marriage_date']
-
-class ParentChildSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ParentChild
-        fields = ['id', 'parent', 'child', 'relationship_type']
-
-class SiblingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sibling
-        fields = ['id', 'person1', 'person2', 'relationship_type']
 
 class PersonSerializer(serializers.ModelSerializer):
     spouses = serializers.SerializerMethodField()
@@ -26,10 +12,10 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = [
-            'id', 'name', 'gender', 'image_url', 'description',
-            'date_of_birth', 'date_of_death', 'family_rank', 'permanent_address',
-            'expanded', 'generation_level', 'spouses', 'children', 
-            'parents', 'siblings', 'generationLevel'
+            'id', 'name', 'gender', 'description', 'image',
+            'date_of_birth', 'date_of_death', 'family_rank',
+            'permanent_address', 'expanded', 'generation_level',
+            'spouses', 'children', 'parents', 'siblings', 'generationLevel'
         ]
         read_only_fields = ['id']
 
@@ -43,7 +29,7 @@ class PersonSerializer(serializers.ModelSerializer):
                 "id": marriage.spouse2.id,
                 "type": marriage.marriage_type
             })
-        
+
         for marriage in marriages2:
             spouses.append({
                 "id": marriage.spouse1.id,
@@ -65,7 +51,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
     def get_siblings(self, obj):
         siblings = []
-        return siblings 
-    
+        return siblings
+
     def get_generationLevel(self, obj):
         return obj.generation_level
