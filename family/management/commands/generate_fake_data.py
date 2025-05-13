@@ -8,7 +8,7 @@ fake = Faker(['vi_VN'])
 
 
 class Command(BaseCommand):
-    help = 'Tạo dữ liệu giả cho family tree với 10 thế hệ, khoảng 100 người'
+    help = 'Tạo dữ liệu giả cho family tree với khoảng 100 người'
 
     def generate_random_date(self, year):
         """Helper function để tạo ngày ngẫu nhiên trong năm"""
@@ -35,29 +35,19 @@ class Command(BaseCommand):
         else:
             name = fake.name_female()
 
-        # Điều chỉnh năm sinh theo 10 thế hệ
+        # Điều chỉnh năm sinh theo thế hệ
         current_year = datetime.now().year
-        if generation == 1:
-            year_of_birth = random.randint(1920, 1930)    # Thế hệ 1: 1920-1930
-        elif generation == 2:
-            year_of_birth = random.randint(1940, 1950)    # Thế hệ 2: 1940-1950
-        elif generation == 3:
-            year_of_birth = random.randint(1955, 1965)    # Thế hệ 3: 1955-1965
-        elif generation == 4:
-            year_of_birth = random.randint(1970, 1980)    # Thế hệ 4: 1970-1980
-        elif generation == 5:
-            year_of_birth = random.randint(1985, 1995)    # Thế hệ 5: 1985-1995
-        elif generation == 6:
-            year_of_birth = random.randint(1995, 2000)    # Thế hệ 6: 1995-2000
-        elif generation == 7:
-            year_of_birth = random.randint(2000, 2005)    # Thế hệ 7: 2000-2005
-        elif generation == 8:
-            year_of_birth = random.randint(2005, 2010)    # Thế hệ 8: 2005-2010
-        elif generation == 9:
-            year_of_birth = random.randint(2010, 2015)    # Thế hệ 9: 2010-2015
-        else:
-            year_of_birth = random.randint(
-                2015, 2020)    # Thế hệ 10: 2015-2020
+        birth_year_ranges = {
+            1: (1940, 1950),   # Thế hệ 1: 1940-1950
+            2: (1960, 1970),   # Thế hệ 2: 1960-1970
+            3: (1980, 1990),   # Thế hệ 3: 1980-1990
+            4: (2000, 2010),   # Thế hệ 4: 2000-2010
+            5: (2010, 2020),   # Thế hệ 5: 2010-2020
+        }
+
+        # Sử dụng mặc định cho các thế hệ không xác định
+        start_year, end_year = birth_year_ranges.get(generation, (2015, 2023))
+        year_of_birth = random.randint(start_year, end_year)
 
         # Tạo ngày sinh
         date_of_birth = self.generate_random_date(year_of_birth)
@@ -65,15 +55,12 @@ class Command(BaseCommand):
         # Xác định xem người này còn sống hay đã mất
         is_deceased = False
         if generation == 1:
-            is_deceased = random.random() < 0.7
+            is_deceased = random.random() < 0.6  # 60% thế hệ 1 đã mất
         elif generation == 2:
-            is_deceased = random.random() < 0.3
-        elif generation == 3:
-            is_deceased = random.random() < 0.1
+            is_deceased = random.random() < 0.2  # 20% thế hệ 2 đã mất
 
-        # Nếu đã mất, tạo ngày mất và năm mất
+        # Nếu đã mất, tạo ngày mất
         date_of_death = None
-        year_of_death = None
         if is_deceased:
             min_age = 50 if generation <= 2 else 40
             max_age = 80 if generation <= 2 else 70
@@ -83,9 +70,9 @@ class Command(BaseCommand):
             date_of_death = self.generate_random_date(year_of_death)
 
         # Xác định thứ bậc trong gia đình
-        family_rank_choices = ['Con trưởng', 'Con thứ hai',
-                               'Con thứ ba', 'Con thứ tư', 'Con thứ năm']
+        family_rank_choices = ['1', '2', '3', '4', '5', 'other']
         family_rank = random.choice(family_rank_choices)
+
         # Tạo địa chỉ
         permanent_address = f"{fake.street_address()}, {fake.city()}"
 
@@ -93,15 +80,12 @@ class Command(BaseCommand):
             name=name,
             gender=gender,
             date_of_birth=date_of_birth,
-            year_of_birth=year_of_birth,
             date_of_death=date_of_death,
-            year_of_death=year_of_death,
             family_rank=family_rank,
             generation_level=generation,
             permanent_address=permanent_address,
             description=fake.text(max_nb_chars=200),
-            image_url=f"https://picsum.photos/id/{random.randint(1, 1000)}/200/200",
-            expanded=generation < 2,
+            expanded=generation < 3,
         )
 
     def create_family_unit(self, generation, parent_ids=None):
@@ -141,21 +125,16 @@ class Command(BaseCommand):
             marriage_date=marriage_date
         )
 
-        # Điều chỉnh số con dựa vào thế hệ
-        if generation == 1:
-            num_children = random.randint(2, 3)      # Thế hệ 1: 2-3 con
-        elif generation == 2:
-            num_children = random.randint(2, 6)      # Thế hệ 2: 2-3 con
-        elif generation == 3:
-            num_children = random.randint(2, 4)      # Thế hệ 3: 2-3 con
-        elif generation == 4:
-            num_children = random.randint(1, 2)      # Thế hệ 4: 1-2 con
-        elif generation in [5, 6]:
-            num_children = random.randint(1, 3)      # Thế hệ 5-6: 1-2 con
-        elif generation in [7, 8]:
-            num_children = 1                         # Thế hệ 7-8: 1 con
-        else:
-            num_children = random.randint(0, 1)      # Thế hệ 9-10: 0-1 con
+        # Điều chỉnh số con dựa vào thế hệ để đạt được khoảng 100 người
+        child_count = {
+            1: (3, 5),    # Thế hệ 1: 3-5 con
+            2: (2, 4),    # Thế hệ 2: 2-4 con
+            3: (1, 3),    # Thế hệ 3: 1-3 con
+            4: (0, 2),    # Thế hệ 4: 0-2 con
+        }
+
+        min_children, max_children = child_count.get(generation, (0, 1))
+        num_children = random.randint(min_children, max_children)
 
         children = []
         for _ in range(num_children):
@@ -190,32 +169,35 @@ class Command(BaseCommand):
         # Xóa dữ liệu cũ
         self.stdout.write('Đang xóa dữ liệu cũ...')
         Person.objects.all().delete()
+        Marriage.objects.all().delete()
+        ParentChild.objects.all().delete()
+        Sibling.objects.all().delete()
 
-        # Tạo thế hệ đầu tiên
+        # Tạo thế hệ đầu tiên - bắt đầu với một gia đình gốc
         self.stdout.write('Đang tạo thế hệ 1...')
         current_generation, parent_ids = self.create_family_unit(1)
         parent_map = {child.id: parent_ids for child in current_generation}
 
-        # Tạo các thế hệ tiếp theo (2-10)
-        for generation in range(2, 11):  # Thay đổi range thành (2, 11)
+        # Tạo các thế hệ tiếp theo (2-5)
+        max_persons = 100  # Giới hạn tổng số người
+        total_persons = 2  # Bắt đầu với 2 người (cặp vợ chồng gốc)
+
+        for generation in range(2, 6):
             self.stdout.write(f'Đang tạo thế hệ {generation}...')
             next_generation = []
             next_parent_map = {}
 
-            for person in current_generation:
-                # Điều chỉnh xác suất có con theo thế hệ
-                if generation <= 3:
-                    chance = 0.95      # Thế hệ 1-3: 95%
-                elif generation <= 5:
-                    chance = 0.85      # Thế hệ 4-5: 85%
-                elif generation <= 7:
-                    chance = 0.75      # Thế hệ 6-7: 75%
-                elif generation <= 8:
-                    chance = 0.60      # Thế hệ 8: 60%
-                else:
-                    chance = 0.40      # Thế hệ 9-10: 40%
+            # Kiểm tra số người hiện tại
+            total_persons = Person.objects.count()
+            if total_persons >= max_persons:
+                self.stdout.write(
+                    f'Đã đạt giới hạn {max_persons} người, dừng tạo dữ liệu.')
+                break
 
-                if random.random() < chance:
+            # Những người trong thế hệ hiện tại có thể kết hôn và có con
+            for person in current_generation:
+                # Chỉ tạo gia đình mới nếu chưa đạt đến giới hạn số người
+                if total_persons < max_persons and random.random() < 0.85:  # 85% khả năng có gia đình
                     children, new_parent_ids = self.create_family_unit(
                         generation,
                         parent_map.get(person.id)
@@ -223,6 +205,8 @@ class Command(BaseCommand):
                     next_generation.extend(children)
                     for child in children:
                         next_parent_map[child.id] = new_parent_ids
+                    # Cập nhật số người hiện tại
+                    total_persons = Person.objects.count()
 
             current_generation = next_generation
             parent_map = next_parent_map
@@ -238,7 +222,7 @@ class Command(BaseCommand):
 
         # Thống kê theo thế hệ
         generation_stats = {}
-        for gen in range(1, 11):
+        for gen in range(1, 6):
             count = Person.objects.filter(generation_level=gen).count()
             generation_stats[gen] = count
 
